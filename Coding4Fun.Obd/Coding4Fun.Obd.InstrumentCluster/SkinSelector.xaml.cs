@@ -41,7 +41,14 @@ namespace Coding4Fun.Obd.InstrumentCluster
 			{
 				try
 				{
-					Task.Factory.StartNew(() => _obd.Connect(Properties.Settings.Default.ComPort, Properties.Settings.Default.Baud, ObdDevice.UnknownProtocol, true));
+					Task.Factory.StartNew(() => _obd.Connect(Properties.Settings.Default.ComPort, Properties.Settings.Default.Baud, ObdDevice.UnknownProtocol, true))
+					.ContinueWith(action =>
+					{
+						Exception ex = action.Exception.Flatten();
+
+						SetMessage("Unable to connect to OBD device: " + ex.Message);
+						Debug.WriteLine(ex);
+					}, TaskContinuationOptions.OnlyOnFaulted);
 				}
 				catch(Exception ex)
 				{

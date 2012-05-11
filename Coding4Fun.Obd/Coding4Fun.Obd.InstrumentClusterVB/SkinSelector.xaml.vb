@@ -35,7 +35,12 @@ Namespace Coding4Fun.Obd.InstrumentCluster
 
 			If (Not DesignerProperties.GetIsInDesignMode(Me)) AndAlso (Not String.IsNullOrEmpty(My.Settings.Default.ComPort)) Then
 				Try
-					Task.Factory.StartNew(Sub() _obd.Connect(My.Settings.Default.ComPort, My.Settings.Default.Baud, ObdDevice.UnknownProtocol, True))
+					Task.Factory.StartNew(Sub() _obd.Connect(My.Settings.Default.ComPort, My.Settings.Default.Baud, ObdDevice.UnknownProtocol, True)).ContinueWith(Sub(action)
+					Dim ex as Exception = action.Exception.Flatten
+					SetMessage("Unable to connect to OBD device: " & ex.Message)
+					Debug.WriteLine(ex)
+					End Sub
+				)
 				Catch ex As Exception
 					SetMessage("Unable to connect to OBD device: " & ex.Message)
 					Debug.WriteLine(ex)
